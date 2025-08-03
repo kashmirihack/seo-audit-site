@@ -1,21 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
   <title>SEO Audit Tool</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- jsPDF Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    window.jsPDF = window.jspdf.jsPDF;
+  </script>
 </head>
 <body>
+  <div class="container">
+    <h1>SEO Audit Tool</h1>
+    <form id="seoForm">
+      <input type="text" id="urlInput" placeholder="Enter website URL..." required />
+      <button type="submit">Run Audit</button>
+    </form>
 
-  <h1>SEO Audit Tool</h1>
+    <div id="result" style="display:none;"></div>
 
-  <form id="auditForm">
-    <input type="text" id="urlInput" placeholder="Enter website URL (e.g. example.com)" required />
-    <input type="submit" value="Audit" />
-  </form>
-
-  <div id="result" class="result" style="display:none;"></div>
+    <button id="downloadPdfBtn" style="display:none; margin-top: 15px;">Download PDF Report</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
