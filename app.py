@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, jsonify
 import requests
 from bs4 import BeautifulSoup
 from flask_cors import CORS
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 @app.route('/')
@@ -14,30 +15,28 @@ def home():
 def audit():
     data = request.get_json()
     url = data.get('url')
-    
+    if not url:
+        return jsonify({'reachable': False, 'error': 'No URL provided'}), 400
     if not url.startswith('http'):
         url = 'http://' + url
-    
     try:
         response = requests.get(url, timeout=10)
         soup = BeautifulSoup(response.text, 'html.parser')
-        
-        title = soup.title.string if soup.title else "No title found"
-        
+        title = soup.title.string.strip() if soup.title and soup.title.string else "No title found"
         description_tag = soup.find("meta", attrs={"name": "description"})
-        description = description_tag["content"] if description_tag and "content" in description_tag.attrs else "No meta description found"
-        
-        h1_tags = soup.find_all("h1")
-        h1_count = len(h1_tags)
-        h1_texts = [tag.get_text(strip=True) for tag in h1_tags]
-        
-        h2_tags = soup.find_all("h2")
-        h2_count = len(h2_tags)
-        h2_texts = [tag.get_text(strip=True) for tag in h2_tags]
-
-        # SEO score (very basic mock logic)
-        score = 100
-        if title == "No title found":
+        description = description_tag["content"].strip() if description_tag and "content" in description_tag.attrs else "No meta description found"
+        h1_tag = soup.find("h1")
+        h1 = h1_tag.get_text(strip=True) if h1_tag else "No H1 found"
+        # You can add more fields as needed
+        return jsonify({
+            'reachable': True,
+            'title': title,
+            'meta_description': description,
+            'h1': h1,
+            'url': url
+        })
+    except Exception as e:
+        return jsonify({'reachable': False, 'error': str(e)}), 500
             score -= 20
         if description == "No meta description found":
             score -= 20
