@@ -1,4 +1,4 @@
-const form = document.getElementById('auditForm');
+const form = document.getElementById('seoForm');
 const resultDiv = document.getElementById('result');
 
 form.addEventListener('submit', function(e) {
@@ -10,10 +10,29 @@ form.addEventListener('submit', function(e) {
     return;
   }
 
-  // For demo, just show the URL entered
-  resultDiv.style.display = 'block';
-  resultDiv.innerHTML = `<p>SEO audit request received for: <strong>${url}</strong></p>
-  <p><em>Backend integration needed to fetch audit results.</em></p>`;
-
-  // Here you can add code to send this URL to your backend server (e.g. using fetch/AJAX)
+  // Backend API call with your Render.com URL
+  fetch('https://seo-audit-site.onrender.com/audit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: url })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if(data.reachable) {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `
+        <p><strong>Website is reachable.</strong></p>
+        <p><strong>Title:</strong> ${data.title || 'No Title Found'}</p>
+        <p><strong>Meta Description:</strong> ${data.meta_description || 'No Meta Description Found'}</p>
+        <p><strong>H1 Tag:</strong> ${data.h1 || 'No H1 Tag Found'}</p>
+      `;
+    } else {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `<p><strong>Website not reachable.</strong></p><p>Error: ${data.error}</p>`;
+    }
+  })
+  .catch(error => {
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+  });
 });
